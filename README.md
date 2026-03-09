@@ -1,10 +1,10 @@
 # Monkey Mind
 
-An interactive electronic literature piece featuring two voices generating stochastic poetry in real-time, with optional text-to-speech narration.
+An interactive electronic literature piece — two voices in stochastic dialogue, exploring relational anxiety and the weight of what lingers. Optional text-to-speech narration.
 
 ## Overview
 
-Monkey Mind presents two concurrent streams of generative text—"him" and "her"—each producing phrases composed from randomized subjects, predicates, and conjunctions. The result is an evolving, meditative dialogue that explores themes of relationship, identity, and meaning through algorithmic composition.
+Monkey Mind presents two concurrent streams of generative text — each producing phrases composed from randomized subjects, predicates, and conjunctions. The result is an evolving, meditative dialogue that explores themes of relational anxiety, identity, and the significance that lingers from past relationships.
 
 Based on Theo Lutz's groundbreaking 1959 program *Stochastische Texte* (Stochastic Texts), reimplemented by [Nick Montfort](http://nickm.com).
 
@@ -14,7 +14,7 @@ Based on Theo Lutz's groundbreaking 1959 program *Stochastische Texte* (Stochast
 - **Text-to-Speech**: Listen to the generated poetry read aloud
   - Browser voices (built-in, no setup required)
   - OpenAI AI voices (natural-sounding, requires API key)
-- **Stereo Panning**: AI voices are spatially positioned—"him" on the left, "her" on the right
+- **Stereo Panning**: AI voices are spatially positioned — one voice on the left, the other on the right
 - **Individual Muting**: Silence either voice independently
 - **Visual Themes**: Distinct styling for each character with background imagery
 
@@ -48,6 +48,11 @@ To use AI voices, enter your OpenAI API key in the input field before starting. 
 │   ├── presentation.css    # Presentation mode styles
 │   └── text-only.css       # Minimal text-only theme
 ├── images/                 # Character background images
+├── archive/                # Experimental/test variants
+│   ├── stochastic_test.html
+│   ├── stochastic_thing3-1.html
+│   ├── stochastic_thing3_use.html
+│   └── stochastic_thing_testfile.html
 └── mockups/                # Alternative visual layouts
     ├── dark-gallery.html
     ├── split-screen.html
@@ -66,7 +71,27 @@ Each voice has its own word pool and interval timing, creating an organic, overl
 
 ## Roadmap
 
-- **Flexible gender pairings**: Allow any combination of voices — him/him, her/her, him/they, they/her, they/they, etc. — moving beyond the current fixed him/her duet to support a wider range of identity and relationship dynamics
+- **Flexible gender pairings**: Allow any combination of voices — him/him, her/her, him/they, they/her, they/they, etc. Moving beyond the current fixed him/her duet to support a wider range of identity and relationship dynamics.
+
+- **Syntactical variety**: Introduce multiple sentence templates beyond the current fixed `subject + predicate + conjunction + subject + predicate` structure:
+  - Simple declarations ("I am your dream")
+  - Question forms ("was she my distance?")
+  - Negation contrasts ("we are our silence not our anger")
+  - Endearment-addressed phrases ("darling, you are my darkness")
+  - Templates selected stochastically with configurable weights, keeping the classic structure dominant
+  - Endearments and interjections woven in — terms of address ("honey", "darling") and parenthetical asides ("(I hear you)", "(please don't)") that break the formal sentence pattern
+
+- **Stochastic → responsive transition**: The voices currently generate independently with no awareness of each other. The vision is a piece that opens in pure stochastic mode and gradually shifts into dialogue:
+  - Early phrases are fully random; over time, voices echo, mirror, or invert each other's words (e.g., "you are my silence" prompting "I am not your silence")
+  - Transition is probability-based, ramping over phrase count rather than clock time, tracking the piece's internal rhythm
+  - Even at full responsiveness, generation stays probabilistic — never fully scripted, always synthetic
+  - Crucially, voices can only hear each other — unspoken text remains private. Turning on speech is what transforms parallel monologues into dialogue, making the listener complicit in bridging the two voices
+
+- **Emotional arc**: The piece moves through emotional phases that mirror the rhythms of a real relationship:
+  - meditation → tension → anger → defensiveness → despair → reconnection → recommitment
+  - Word pools blend across phases based on phrase count, with each phase introducing and retiring vocabulary
+  - Early predicates are contemplative (meadow, dream, quiet, gift); middle phases introduce friction (fury, wound, absence, thorn); later phases circle back toward repair (forgiveness, return, morning, hands)
+  - The arc is not linear but cyclical — ebbing and flowing, with the possibility of revisiting earlier emotional ground at deeper levels
 
 ## Credits
 
