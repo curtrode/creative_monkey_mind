@@ -75,7 +75,26 @@ const MonkeyMind = {
       }
     };
 
+    let currentInterval = interval;
+    let timer = null;
+
+    const schedule = () => {
+      timer = setTimeout(() => {
+        litany();
+        schedule();
+      }, currentInterval);
+    };
+
+    // Listen for interval changes from parent
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'setInterval') {
+        currentInterval = e.data.interval;
+        clearTimeout(timer);
+        schedule();
+      }
+    });
+
     litany();
-    setInterval(litany, interval);
+    schedule();
   }
 };

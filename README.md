@@ -1,4 +1,5 @@
 # Monkey Mind
+*Too many tabs open.*
 
 An interactive electronic literature piece — two voices in stochastic dialogue, exploring relational anxiety and the weight of what lingers. Optional text-to-speech narration.
 
@@ -11,12 +12,13 @@ Based on Theo Lutz's groundbreaking 1959 program *Stochastische Texte* (Stochast
 ## Features
 
 - **Dual Generative Voices**: Two independent text generators with distinct word pools and timing
+- **Adjustable Speed**: Click to cycle each voice's interval (1000–7000ms)
 - **Text-to-Speech**: Listen to the generated poetry read aloud
-  - Browser voices (built-in, no setup required)
-  - OpenAI AI voices (natural-sounding, requires API key)
+  - Machine voices (built-in, no setup required)
+  - Human voices (natural-sounding, requires OpenAI API key)
 - **Stereo Panning**: AI voices are spatially positioned — one voice on the left, the other on the right
-- **Individual Muting**: Silence either voice independently
-- **Visual Themes**: Distinct styling for each character with background imagery
+- **Individual Muting**: Silence either voice independently — voices start muted, letting text accumulate before listening
+- **Terminal Aesthetic**: Monospace type, dark background, color-coded voices (green/blue)
 
 ## Getting Started
 
@@ -28,10 +30,10 @@ Based on Theo Lutz's groundbreaking 1959 program *Stochastische Texte* (Stochast
 
 | Mode | Setup | Quality |
 |------|-------|---------|
-| Browser Voices | None required | Basic, robotic |
-| OpenAI TTS | API key required | Natural, expressive |
+| Machine voices | None required | Synthetic, robotic |
+| Human voices | OpenAI API key | Natural, expressive |
 
-To use AI voices, enter your OpenAI API key in the input field before starting. The key is saved locally for future sessions.
+To use human voices, enter your OpenAI API key in the input field before starting. The key is saved locally for future sessions.
 
 ## Project Structure
 
