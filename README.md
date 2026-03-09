@@ -1,13 +1,13 @@
 # Monkey Mind
 *Too many tabs open.*
 
-An interactive electronic literature piece — two voices in stochastic dialogue, exploring relational anxiety and the weight of what lingers. Optional text-to-speech narration.
+An interactive electronic literature piece — two voices in stochastic dialogue, exploring relational anxiety and the weight of what lingers.
 
 ## Overview
 
-Monkey Mind presents two concurrent streams of generative text — each producing phrases composed from randomized subjects, predicates, and conjunctions. The result is an evolving, meditative dialogue that explores themes of relational anxiety, identity, and the significance that lingers from past relationships.
+Built on [Nick Montfort](http://nickm.com)'s reimplementation of Theo Lutz's 1959 *Stochastische Texte*, *Monkey Mind* turns the tradition's stochastic sentence generation toward the language of intimacy — possession, negation, longing, and silence. Two voices generate text simultaneously, each assembling phrases from relational subjects and abstract predicates. The voices run at different speeds, creating an overlapping texture that evokes two minds thinking past each other — a stochastic duet that never quite resolves into conversation.
 
-Based on Theo Lutz's groundbreaking 1959 program *Stochastische Texte* (Stochastic Texts), reimplemented by [Nick Montfort](http://nickm.com).
+The title references the Buddhist concept of "monkey mind" — restless consciousness swinging from thought to thought without resolution. The subtitle grounds this in contemporary digital attention.
 
 ## Features
 
@@ -83,17 +83,9 @@ Each voice has its own word pool and interval timing, creating an organic, overl
   - Templates selected stochastically with configurable weights, keeping the classic structure dominant
   - Endearments and interjections woven in — terms of address ("honey", "darling") and parenthetical asides ("(I hear you)", "(please don't)") that break the formal sentence pattern
 
-- **Stochastic → responsive transition**: The voices currently generate independently with no awareness of each other. The vision is a piece that opens in pure stochastic mode and gradually shifts into dialogue:
-  - Early phrases are fully random; over time, voices echo, mirror, or invert each other's words (e.g., "you are my silence" prompting "I am not your silence")
-  - Transition is probability-based, ramping over phrase count rather than clock time, tracking the piece's internal rhythm
-  - Even at full responsiveness, generation stays probabilistic — never fully scripted, always synthetic
-  - Crucially, voices can only hear each other — unspoken text remains private. Turning on speech is what transforms parallel monologues into dialogue, making the listener complicit in bridging the two voices
+- **Stochastic → responsive transition**: The voices currently generate independently. The vision: open in pure stochastic mode and gradually shift into dialogue, where one voice echoes, mirrors, or inverts the other's words. The transition is probabilistic, never fully scripted, tracking the piece's internal rhythm. Voices can only hear each other through vocalization — unspoken text remains private. Enabling speech transforms parallel monologues into dialogue, making the listener complicit in bridging two minds. The central question: is it even possible to carry the stochastic nature of the original into something truly dialogic, in real time?
 
-- **Emotional arc**: The piece moves through emotional phases that mirror the rhythms of a real relationship:
-  - meditation → tension → anger → defensiveness → despair → reconnection → recommitment
-  - Word pools blend across phases based on phrase count, with each phase introducing and retiring vocabulary
-  - Early predicates are contemplative (meadow, dream, quiet, gift); middle phases introduce friction (fury, wound, absence, thorn); later phases circle back toward repair (forgiveness, return, morning, hands)
-  - The arc is not linear but cyclical — ebbing and flowing, with the possibility of revisiting earlier emotional ground at deeper levels
+- **Emotional arc**: Word pools evolve through phases mirroring the rhythms of a real relationship — meditation, tension, anger, defensiveness, despair, reconnection, recommitment. The arc is cyclical, ebbing and flowing, revisiting earlier emotional ground at deeper levels.
 
 ## Credits
 
