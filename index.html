@@ -136,17 +136,23 @@
 
   .overlay-title {
     color: #999;
-    font-size: 15px;
+    font-size: 30px;
     font-weight: normal;
-    letter-spacing: 1px;
-    margin: 0 0 4px 0;
+    letter-spacing: 6px;
+    margin: 0 0 8px 0;
   }
 
   .overlay-subtitle {
-    color: #666;
     font-size: 13px;
     font-style: italic;
     margin-bottom: 20px;
+    color: #3a8;
+    animation: voice-fade 6s ease-in-out infinite;
+  }
+
+  @keyframes voice-fade {
+    0%, 100% { color: #3a8; }
+    50%      { color: #5ad; }
   }
 
   .overlay-desc {
@@ -154,6 +160,10 @@
     font-size: 12px;
     line-height: 1.8;
     margin-bottom: 16px;
+  }
+
+  .overlay-link {
+    margin-bottom: 20px;
   }
 
   .overlay-link a {
@@ -231,13 +241,6 @@
 <div class="overlay" id="overlay" role="dialog" aria-label="Monkey Mind — start screen">
   <div class="overlay-top">
     <div class="overlay-info">
-      <h1 class="overlay-title">MONKEY MIND</h1>
-      <p class="overlay-subtitle">Too many tabs open</p>
-      <p class="overlay-desc">
-        Two voices generating text simultaneously &mdash; assembling phrases
-        from the language of intimacy, possession, negation, and silence.
-        They run at different speeds. They do not hear each other unless you listen.
-      </p>
       <div class="overlay-link">
         <a href="excerpt.html">about this piece</a>
         <span class="overlay-link-sep">/</span>
@@ -245,10 +248,17 @@
         <span class="overlay-link-sep">/</span>
         <a href="https://curtrode.com">curtrode.com</a>
       </div>
+      <h1 class="overlay-title">MONKEY MIND</h1>
+      <p class="overlay-subtitle">Too many tabs open</p>
+      <p class="overlay-desc">
+        Two voices generating text simultaneously &mdash; assembling phrases
+        from the language of intimacy, possession, negation, and silence.
+        They run at different speeds. They do not hear each other unless you listen.
+      </p>
       <div class="overlay-setup">
         <label for="api-key" class="sr-only">OpenAI API key</label>
         <input id="api-key" type="password" placeholder="OpenAI API key (optional)" aria-describedby="api-key-hint">
-        <div class="hint" id="api-key-hint">for human-like AI voices</div>
+        <div class="hint" id="api-key-hint">for AI-generated voices</div>
         <div class="hint" id="key-status" aria-live="polite"></div>
       </div>
     </div>
@@ -479,7 +489,7 @@
     speakAI.failures = 0;
     var existing = document.getElementById('tts-error');
     if (existing) existing.remove();
-    this.textContent = useAI ? '[voice:human]' : '[voice:machine]';
+    this.textContent = useAI ? '[voice:AI]' : '[voice:machine]';
   });
 
   muteBtn.addEventListener('click', function () {

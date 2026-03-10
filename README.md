@@ -19,7 +19,7 @@ The `MonkeyMind` module generates sentences by randomly combining:
 - **Predicates**: Abstract nouns ("silence", "dream", "darkness", "freedom") and pastoral imagery ("horses", "meadow", "yellow bird")
 - **Conjunctions**: Connectors with parenthetical asides ("and", "but", "(please listen)")
 
-Each voice has its own word pool and interval timing, creating an organic, overlapping conversation effect. The piece uses a terminal-style interface with text-to-speech narration in both synthetic machine and AI-generated human voices. Voices begin muted; the viewer chooses when to listen, which voices to activate, and how quickly each voice processes its anxieties.
+Each voice has its own word pool and interval timing, creating an organic, overlapping conversation effect. The piece uses a terminal-style interface with text-to-speech narration in both synthetic machine and AI-generated voices. Voices begin muted; the viewer chooses when to listen, which voices to activate, and how quickly each voice processes its anxieties.
 
 ## Roadmap
 
