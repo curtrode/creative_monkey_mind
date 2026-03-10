@@ -26,7 +26,29 @@
     color: #555;
   }
 
-  .prompt .cmd { color: #888; }
+  .prompt .cmd {
+    font-family: inherit;
+    font-size: inherit;
+    color: #999;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .prompt .cmd:hover { color: #ccc; }
+  .prompt .cmd:focus-visible { outline: 2px solid #888; outline-offset: 2px; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   .cursor {
     display: inline-block;
@@ -47,16 +69,24 @@
     gap: 12px;
   }
 
-  .controls a {
-    color: #444;
-    text-decoration: none;
+  .controls button {
+    font-family: inherit;
+    font-size: inherit;
+    color: #999;
+    background: none;
+    border: none;
     cursor: pointer;
     transition: color 0.2s;
     user-select: none;
+    padding: 0;
   }
 
-  .controls a:hover { color: #999; }
-  .controls a.active { color: #777; }
+  .controls button:hover { color: #ccc; }
+  .controls button:focus-visible { outline: 2px solid #888; outline-offset: 2px; }
+  .controls button.him-ctrl { color: #3c9; }
+  .controls button.him-ctrl:hover { color: #5eb; }
+  .controls button.her-ctrl { color: #5ad; }
+  .controls button.her-ctrl:hover { color: #7cf; }
 
   .stage {
     display: grid;
@@ -84,39 +114,113 @@
     position: fixed;
     inset: 0;
     background: #000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
     z-index: 100;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr auto;
+    padding: 48px 48px 32px;
     cursor: pointer;
   }
 
-  .overlay-prompt {
-    color: #444;
-    font-size: 15px;
+  .overlay-top {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
-  .overlay-prompt .text { color: #666; }
-  .overlay:hover .overlay-prompt .text { color: #999; }
+  .overlay-info {
+    max-width: 480px;
+  }
+
+  .overlay-title {
+    color: #999;
+    font-size: 15px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    margin: 0 0 4px 0;
+  }
+
+  .overlay-subtitle {
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  .overlay-desc {
+    color: #888;
+    font-size: 12px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .overlay-link a {
+    font-size: 11px;
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px solid #444;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .overlay-link a:hover {
+    color: #ccc;
+    border-color: #888;
+  }
+
+  .overlay-link a:focus-visible {
+    outline: 2px solid #888;
+    outline-offset: 2px;
+  }
+
+  .overlay-link-sep {
+    font-size: 11px;
+    color: #444;
+    margin: 0 6px;
+  }
+
+  .overlay-setup {
+    margin-top: 20px;
+  }
+
+  .overlay-setup .hint {
+    font-size: 11px;
+    color: #666;
+    margin-top: 6px;
+  }
 
   .overlay input {
     font-family: inherit;
     font-size: 13px;
     padding: 8px 12px;
-    width: 320px;
+    width: 280px;
     border: 1px solid #333;
     border-radius: 0;
     background: #111;
-    color: #888;
-    text-align: center;
+    color: #999;
+    text-align: left;
   }
 
-  .overlay input::placeholder { color: #444; }
-  .overlay input:focus { outline: 1px solid #555; border-color: #555; }
+  .overlay input::placeholder { color: #555; }
+  .overlay input:focus { outline: 2px solid #888; border-color: #888; }
 
-  .overlay .hint {
+  .overlay-bottom {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .overlay-prompt {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .overlay:hover .overlay-prompt .text { color: #ccc; }
+
+  .overlay-credit {
     font-size: 11px;
     color: #444;
   }
@@ -124,36 +228,60 @@
 </head>
 <body>
 
-<div class="overlay" id="overlay">
-  <div class="overlay-prompt">
-    <span class="text">&gt; press to begin</span><span class="cursor"></span>
+<div class="overlay" id="overlay" role="dialog" aria-label="Monkey Mind — start screen">
+  <div class="overlay-top">
+    <div class="overlay-info">
+      <h1 class="overlay-title">MONKEY MIND</h1>
+      <p class="overlay-subtitle">Too many tabs open</p>
+      <p class="overlay-desc">
+        Two voices generating text simultaneously &mdash; assembling phrases
+        from the language of intimacy, possession, negation, and silence.
+        They run at different speeds. They do not hear each other unless you listen.
+      </p>
+      <div class="overlay-link">
+        <a href="portfolio-preview.html">about this piece</a>
+        <span class="overlay-link-sep">/</span>
+        <a href="https://github.com/curtrode/monkey_mind_refactored">source</a>
+        <span class="overlay-link-sep">/</span>
+        <a href="https://curtrode.com">curtrode.com</a>
+      </div>
+      <div class="overlay-setup">
+        <label for="api-key" class="sr-only">OpenAI API key</label>
+        <input id="api-key" type="password" placeholder="OpenAI API key (optional)" aria-describedby="api-key-hint">
+        <div class="hint" id="api-key-hint">for human-like AI voices</div>
+        <div class="hint" id="key-status" aria-live="polite"></div>
+      </div>
+    </div>
   </div>
-  <input id="api-key" type="password" placeholder="OpenAI API key (optional)">
-  <div class="hint">leave blank for machine voices, or enter key for human-like AI voices</div>
-  <div class="hint" id="key-status"></div>
+  <div class="overlay-bottom">
+    <div class="overlay-prompt">
+      <span class="text">&gt; press anywhere to begin</span><span class="cursor" aria-hidden="true"></span>
+    </div>
+    <div class="overlay-credit">Curt Rode</div>
+  </div>
 </div>
 
-<div class="header">
+<header class="header">
   <div class="prompt">
-    <span class="cmd">&gt; monkey_mind</span><span class="cursor"></span>
+    <button class="cmd" aria-label="Return to start screen">&gt; monkey_mind</button><span class="cursor" aria-hidden="true"></span>
   </div>
-  <div class="controls">
-    <a id="him-btn" class="active">[him:on]</a>
-    <a id="him-speed">[3500ms]</a>
-    <a id="her-btn" class="active">[her:on]</a>
-    <a id="her-speed">[2000ms]</a>
-    <a id="mute-btn">[mute]</a>
-    <a id="voice-btn" style="display:none">[voice:machine]</a>
-  </div>
-</div>
+  <nav class="controls" aria-label="Voice controls">
+    <button id="him-btn" class="him-ctrl" aria-label="Toggle him voice">[him:on]</button>
+    <button id="him-speed" class="him-ctrl" aria-label="Change him speed">[3500ms]</button>
+    <button id="her-btn" class="her-ctrl" aria-label="Toggle her voice">[her:on]</button>
+    <button id="her-speed" class="her-ctrl" aria-label="Change her speed">[2000ms]</button>
+    <button id="mute-btn" aria-label="Toggle listening">[mute]</button>
+    <button id="voice-btn" style="display:none" aria-label="Toggle voice type">[voice:machine]</button>
+  </nav>
+</header>
 
 <div class="stage">
   <div class="panel him">
-    <iframe id="him" src="stochastic_thing2.html"></iframe>
+    <iframe id="him" src="stochastic_thing2.html" title="Him voice — stochastic text generator"></iframe>
   </div>
-  <div class="divider"></div>
+  <div class="divider" role="separator"></div>
   <div class="panel her">
-    <iframe id="her" src="stochastic_thing3.html"></iframe>
+    <iframe id="her" src="stochastic_thing3.html" title="Her voice — stochastic text generator"></iframe>
   </div>
 </div>
 
@@ -293,6 +421,14 @@
     e.stopPropagation();
   });
 
+  document.querySelector('.overlay-link').addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  document.querySelector('.overlay-setup').addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
   if (storedApiKey) {
     apiKeyInput.value = storedApiKey;
     document.getElementById('key-status').textContent = 'saved key found';
@@ -307,12 +443,20 @@
       storedApiKey = null;
       localStorage.removeItem('mm_apikey');
     }
-    overlay.remove();
+    overlay.style.display = 'none';
     listening = false;
     muteBtn.textContent = '[mute]';
     if (storedApiKey) {
       voiceBtn.style.display = '';
     }
+  });
+
+  document.querySelector('.cmd').addEventListener('click', function () {
+    listening = false;
+    muteBtn.textContent = '[mute]';
+    muteBtn.classList.remove('active');
+    speechSynthesis.cancel();
+    overlay.style.display = '';
   });
 
   himBtn.addEventListener('click', function () {

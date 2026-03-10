@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monkey Mind — Portfolio Preview</title>
+<style>
+  @media print {
+    .page-break { page-break-before: always; }
+    body { font-size: 11pt; }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #222;
+    max-width: 7.5in;
+    margin: 0 auto;
+    padding: 0.75in 0;
+  }
+
+  /* Page markers */
+  .page {
+    min-height: 9in;
+    padding: 0 0 1in 0;
+    position: relative;
+  }
+
+  .page-num {
+    position: absolute;
+    bottom: 0.25in;
+    right: 0;
+    font-size: 9pt;
+    color: #999;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+
+  .page-break {
+    border-top: 1px dashed #ccc;
+    margin-top: 0.5in;
+    padding-top: 0.5in;
+  }
+
+  /* Typography */
+  .back-link {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 9pt;
+    margin-bottom: 24pt;
+  }
+
+  .back-link a {
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .back-link a:hover {
+    color: #444;
+    border-color: #888;
+  }
+
+  @media print {
+    .back-link { display: none; }
+  }
+
+  h1 {
+    font-size: 20pt;
+    font-weight: normal;
+    margin-bottom: 4pt;
+  }
+
+  h1 em { font-style: italic; }
+
+  .subtitle {
+    font-size: 11pt;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 24pt;
+  }
+
+  h2 {
+    font-size: 13pt;
+    font-weight: bold;
+    margin-top: 24pt;
+    margin-bottom: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    color: #444;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4pt;
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-bottom: 6pt;
+    color: #333;
+  }
+
+  p {
+    margin-bottom: 10pt;
+    text-align: left;
+  }
+
+  .framing p {
+    text-indent: 0;
+  }
+
+  /* Code blocks */
+  pre, code {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 9.5pt;
+  }
+
+  pre {
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 12pt 14pt;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin-bottom: 12pt;
+  }
+
+  .code-label {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 9pt;
+    color: #888;
+    margin-bottom: 4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+
+  /* Word pool display */
+  .pool {
+    margin-bottom: 16pt;
+  }
+
+  .pool-label {
+    font-weight: bold;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    color: #666;
+    margin-bottom: 4pt;
+  }
+
+  .pool-words {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 9.5pt;
+    line-height: 1.8;
+    color: #333;
+  }
+
+  .pool-words span {
+    display: inline-block;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    padding: 1pt 6pt;
+    margin: 2pt 3pt 2pt 0;
+  }
+
+  .pool-words .empty {
+    color: #bbb;
+    font-style: italic;
+    border-style: dashed;
+    background: transparent;
+  }
+
+  /* Annotation callouts */
+  .annotation {
+    font-size: 9.5pt;
+    color: #777;
+    font-style: italic;
+    margin: 8pt 0 16pt 0;
+    padding-left: 12pt;
+    border-left: 2px solid #ddd;
+  }
+
+  /* Sample output */
+  .output-container {
+    background: #0a0a0a;
+    border-radius: 4px;
+    padding: 20pt 24pt;
+    margin-bottom: 16pt;
+    overflow: hidden;
+  }
+
+  .output-header {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 9pt;
+    color: #555;
+    margin-bottom: 12pt;
+  }
+
+  .output-header .cmd { color: #888; }
+  .output-header .cursor {
+    display: inline-block;
+    width: 6pt;
+    height: 10pt;
+    background: #555;
+    vertical-align: text-bottom;
+  }
+
+  .output-stage {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0;
+    min-height: 200pt;
+  }
+
+  .output-divider {
+    background: #1a1a1a;
+  }
+
+  .output-voice {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 9pt;
+    line-height: 2;
+    padding: 0 12pt;
+  }
+
+  .voice-him { color: #3a8; }
+  .voice-her { color: #5ad; }
+
+  .output-controls {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 8pt;
+    color: #444;
+    display: flex;
+    gap: 8pt;
+    justify-content: flex-end;
+    margin-bottom: 8pt;
+  }
+
+  .output-controls span { color: #666; }
+
+  /* Comment styling in code */
+  .c { color: #888; }
+  .k { color: #7a5; }
+  .s { color: #b75; }
+  .n { color: #57a; }
+
+  /* Unique words highlight */
+  .unique { background: #fff3cd; border-color: #e0c97a; }
+
+  /* Voice label */
+  .voice-tag {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    padding: 2pt 6pt;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 8pt;
+  }
+
+  .voice-tag.him { background: #e8f5ec; color: #3a8; }
+  .voice-tag.her { background: #e8eef5; color: #47a; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PAGE 1: Framing Note                                         -->
+<!-- ============================================================ -->
+<div class="page framing">
+
+  <div class="back-link"><a href="index.html">&larr; back to piece</a></div>
+
+  <h1><em>Monkey Mind</em></h1>
+  <div class="subtitle">Too many tabs open — a stochastic duet</div>
+
+  <h2>About This Excerpt</h2>
+
+  <p>
+    <em>Monkey Mind</em> is an interactive electronic literature piece in which two voices generate text simultaneously, assembling phrases from overlapping but distinct word pools. Each voice combines relational subjects (<em>"you are my," "I am not your," "we were our"</em>) with abstract and pastoral predicates (<em>"silence," "horses," "yellow bird," "darkness"</em>), producing a continuous stream of stochastic language that evokes two minds thinking past each other.
+  </p>
+
+  <p>
+    The piece runs in a browser with a terminal-style interface. The voices begin muted; the viewer chooses when — and whether — to listen. Text-to-speech narration (both synthetic machine and AI-generated human voices) spatializes the two voices in stereo, one left and one right. Enabling speech transforms parallel monologues into something closer to dialogue, making the listener complicit in bridging two minds.
+  </p>
+
+  <p>
+    The work is built on Nick Montfort's Memory Slam — a collection of stochastic text engines reimplementing classics like Christopher Strachey's <em>Love Letters</em> (1952) and Alison Knowles & James Tenney's <em>A House of Dust</em> (1967). Where those foundational works operate as poetic monologues, <em>Monkey Mind</em> attempts to carry stochastic generation into dialogue.
+  </p>
+
+  <p>
+    What follows is the complete source of the piece: the generation engine, the word pools that constitute its vocabulary, and a sample of the output it produces. In computational writing, the code <em>is</em> the writing — the literary decisions are embedded in the choice of words, the sentence templates, the timing, and the silences.
+  </p>
+
+  <h2>How to Read This</h2>
+
+  <p>
+    <strong>The Engine</strong> (p. 2–3) shows the generation logic — how subjects, predicates, and conjunctions are combined. Note the simplicity: a single function assembles each phrase.
+  </p>
+  <p>
+    <strong>The Word Pools</strong> (p. 4–7) are the poem's raw material. Two voices share most vocabulary but diverge in small, deliberate ways. Empty strings in the arrays are intentional — they create gaps, half-sentences, silence.
+  </p>
+  <p>
+    <strong>Sample Output</strong> (p. 8–10) captures both voices running simultaneously, as they would appear in the terminal interface.
+  </p>
+
+  <span class="page-num">1</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2–3: The Engine                                          -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <h2>The Engine</h2>
+
+  <div class="code-label">js/monkey-mind.js</div>
+<pre><span class="c">/*
+ * Stochastic Texts reimplementation
+ * copyright (c) 2014 Nick Montfort &lt;nickm@nickm.com&gt;
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ */</span>
+
+<span class="k">'use strict';</span>
+
+<span class="k">const</span> MonkeyMind = {
+  init(config) {
+    <span class="k">const</span> {
+      subjects,
+      predicates,
+      conjunctions,
+      operators,
+      interval,
+      maxVisible = 8,
+      endearments = <span class="k">null</span>,
+      interjections = <span class="k">null</span>,
+      id = <span class="k">null</span>,
+    } = config;
+
+    <span class="k">let</span> t = 0;
+
+    <span class="k">const</span> randRange = (maximum) =&gt;
+      Math.floor(Math.random() * (maximum + 1));
+
+    <span class="k">const</span> choose = (array) =&gt;
+      array[randRange(array.length - 1)];</pre>
+
+  <div class="annotation">
+    <code>choose()</code> selects a random element from any array — the single point of stochastic decision-making in the entire engine.
+  </div>
+
+<pre>    <span class="k">const</span> phrase = () =&gt; {
+      <span class="k">let</span> text = choose(operators);
+      <span class="k">if</span> (endearments) {
+        text += choose(endearments);
+      }
+      text += <span class="s">' '</span> + choose(subjects);
+      <span class="k">if</span> (text === <span class="s">'A EYE'</span>) {
+        text = <span class="s">'AN EYE'</span>;
+      }
+      <span class="k">return</span> text + <span class="s">' '</span>;
+    };</pre>
+
+  <div class="annotation">
+    A phrase is: an operator (currently empty) + an optional endearment + a subject. The <code>'A EYE' → 'AN EYE'</code> correction is a vestige of the original Montfort engine, preserved here.
+  </div>
+
+<pre>    <span class="k">const</span> litany = () =&gt; {
+      <span class="k">const</span> main = document.getElementById(<span class="s">'main'</span>);
+      <span class="k">if</span> (maxVisible &gt; t) {
+        t += 1;
+      } <span class="k">else</span> {
+        main.removeChild(main.firstChild);
+      }
+      <span class="k">const</span> last = document.createElement(<span class="s">'div'</span>);
+      <span class="k">let</span> text = phrase() + choose(predicates);</pre>
+
+  <span class="page-num">2</span>
+</div>
+
+<div class="page page-break">
+
+<pre>      <span class="k">if</span> (interjections) {
+        text += choose(interjections);
+      }
+      text += choose(conjunctions);
+      text += phrase() + choose(predicates) + <span class="s">' '</span>;
+      last.innerHTML = text;
+      main.appendChild(last);
+
+      <span class="c">// Send text to parent frame for speech</span>
+      <span class="k">if</span> (window.parent !== window && id) {
+        window.parent.postMessage(
+          { type: <span class="s">'monkeyMindText'</span>, text: text, source: id }, <span class="s">'*'</span>
+        );
+      }
+    };</pre>
+
+  <div class="annotation">
+    Each line of output follows the pattern: <code>phrase + predicate + conjunction + phrase + predicate</code>. This is the sentence template — a two-clause structure joined by a conjunction, directly descended from the original stochastic text engines. The <code>postMessage</code> call sends the generated text to the parent frame, where it can be spoken aloud.
+  </div>
+
+<pre>    <span class="k">let</span> currentInterval = interval;
+    <span class="k">let</span> timer = <span class="k">null</span>;
+
+    <span class="k">const</span> schedule = () =&gt; {
+      timer = setTimeout(() =&gt; {
+        litany();
+        schedule();
+      }, currentInterval);
+    };
+
+    <span class="c">// Listen for interval changes from parent</span>
+    window.addEventListener(<span class="s">'message'</span>, (e) =&gt; {
+      <span class="k">if</span> (e.data && e.data.type === <span class="s">'setInterval'</span>) {
+        currentInterval = e.data.interval;
+        clearTimeout(timer);
+        schedule();
+      }
+    });
+
+    litany();
+    schedule();
+  }
+};</pre>
+
+  <div class="annotation">
+    Each voice runs on its own timer. "Him" defaults to 3500ms; "her" to 2000ms — she generates nearly twice as fast. The viewer can adjust both speeds. This asymmetry creates the overlapping, unsynchronized rhythm that gives the piece its texture.
+  </div>
+
+  <span class="page-num">3</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGES 4–7: Word Pools                                         -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <h2>The Word Pools</h2>
+
+  <p>
+    Each voice is initialized with its own arrays of subjects, predicates, and conjunctions. The two voices share most of their vocabulary but diverge in small, deliberate ways — giving each a subtle personality within the shared language of the relationship. Words highlighted in <span style="background:#fff3cd;padding:1pt 4pt;border:1px solid #e0c97a;border-radius:2px;font-size:9pt;">yellow</span> are unique to that voice.
+  </p>
+  <p>
+    Empty strings appear intentionally throughout the arrays. When selected, they produce gaps — silence, half-formed thoughts, lines that trail into nothing. The ratio of empty to filled entries controls how often each voice falls quiet.
+  </p>
+
+  <br>
+
+  <span class="voice-tag him">Him — 3500ms</span>
+
+  <div class="pool">
+    <div class="pool-label">Subjects</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span>you are my</span>
+      <span>you are not my</span>
+      <span>we are our</span>
+      <span>we are not our</span>
+      <span>I am your</span>
+      <span>I am not your</span>
+      <span>he was my</span>
+      <span>he was not my</span>
+      <span>she was my</span>
+      <span>she was not my</span>
+      <span>she was your</span>
+      <span>we were not your</span>
+      <span>we were my</span>
+      <span>we were not my</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    7 of 21 entries are empty — roughly one-third of the time, the subject position is silent. The relational pronouns cycle through tenses and possessives: present ("you are"), past ("she was"), negated ("I am not"). Every subject frames a claim about belonging.
+  </div>
+
+  <span class="page-num">4</span>
+</div>
+
+<div class="page page-break">
+
+  <div class="pool">
+    <div class="pool-label">Predicates</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span>gift</span>
+      <span>silence</span>
+      <span>strength</span>
+      <span>value</span>
+      <span>one</span>
+      <span>meadow</span>
+      <span>dream</span>
+      <span>marrow</span>
+      <span>supply</span>
+      <span>horses</span>
+      <span>breath</span>
+      <span>heart</span>
+      <span class="unique">map</span>
+      <span>novelty</span>
+      <span>quiet</span>
+      <span>distance</span>
+      <span>yellow bird</span>
+      <span class="unique">cotton</span>
+      <span>darkness</span>
+      <span>freedom</span>
+      <span>expense</span>
+      <span>age</span>
+      <span>anger</span>
+      <span>moth</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    The predicates mix registers: abstract emotional states (<em>silence, darkness, freedom, anger</em>), pastoral imagery (<em>meadow, horses, yellow bird</em>), and the body (<em>marrow, breath, heart</em>). <em>Map</em> and <em>cotton</em> are unique to "him" — concrete, tactile, navigational.
+  </div>
+
+  <div class="pool">
+    <div class="pool-label">Conjunctions</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span>and</span>
+      <span>or</span>
+      <span>but</span>
+      <span>therefore</span>
+      <span>(please listen)</span>
+      <span>(I hear you)</span>
+      <span>(please don't)</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    The conjunctions include three parenthetical interjections — whispered asides that break the formal sentence pattern. These are the only moments where a voice addresses its listener directly.
+  </div>
+
+  <span class="page-num">5</span>
+</div>
+
+<div class="page page-break">
+
+  <span class="voice-tag her">Her — 2000ms</span>
+
+  <div class="pool">
+    <div class="pool-label">Subjects</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span>you are my</span>
+      <span>you are not my</span>
+      <span>we are our</span>
+      <span>we are not our</span>
+      <span>I am your</span>
+      <span>I am not your</span>
+      <span>he was my</span>
+      <span>he was not my</span>
+      <span>she was my</span>
+      <span>she was not my</span>
+      <span>she was your</span>
+      <span class="unique">I am not</span>
+      <span class="unique">you are completely</span>
+      <span>we were not your</span>
+      <span>we were my</span>
+      <span>we were not my</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    "Her" voice adds two unique subjects: <em>"I am not"</em> (a bare negation, unfinished — identity dissolving into predicate) and <em>"you are completely"</em> (an intensifier that charges whatever follows). She also has one fewer silence, making her slightly more verbal.
+  </div>
+
+  <span class="page-num">6</span>
+</div>
+
+<div class="page page-break">
+
+  <div class="pool">
+    <div class="pool-label">Predicates</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="empty">[silence]</span>
+      <span class="unique">right</span>
+      <span class="unique">wrong</span>
+      <span>gift</span>
+      <span>silence</span>
+      <span>strength</span>
+      <span>value</span>
+      <span>one</span>
+      <span>meadow</span>
+      <span>dream</span>
+      <span>marrow</span>
+      <span>supply</span>
+      <span>horses</span>
+      <span>breath</span>
+      <span>heart</span>
+      <span class="unique">road</span>
+      <span>novelty</span>
+      <span>quiet</span>
+      <span>distance</span>
+      <span>yellow bird</span>
+      <span class="unique">forsythia</span>
+      <span>darkness</span>
+      <span>freedom</span>
+      <span>expense</span>
+      <span>age</span>
+      <span>anger</span>
+      <span>moth</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    "Her" predicates include 5 more silences — but her faster interval (2000ms vs 3500ms) means she generates more frequently despite the gaps. Her unique words: <em>right</em> and <em>wrong</em> (moral judgment), <em>road</em> (movement, departure), and <em>forsythia</em> (a bright yellow flowering shrub — the most specific, sensory word in the entire piece).
+  </div>
+
+  <div class="pool">
+    <div class="pool-label">Conjunctions</div>
+    <div class="pool-words">
+      <span class="empty">[silence]</span>
+      <span>and</span>
+      <span>or</span>
+      <span>but</span>
+      <span>therefore</span>
+      <span>(please listen)</span>
+      <span>(I hear you)</span>
+      <span>(please don't)</span>
+    </div>
+  </div>
+
+  <div class="annotation">
+    Identical conjunctions. The parenthetical asides — <em>(please listen)</em>, <em>(I hear you)</em>, <em>(please don't)</em> — are shared. Both voices have the same capacity for direct address; neither has a monopoly on vulnerability.
+  </div>
+
+  <span class="page-num">7</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGES 8–10: Sample Output                                     -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <h2>Sample Output</h2>
+
+  <p>
+    The following captures both voices running simultaneously, as they appear in the terminal interface. "Him" generates on the left in green at 3500ms intervals; "her" on the right in blue at 2000ms. Lines accumulate from top to bottom; older lines scroll off. Each run produces entirely different text.
+  </p>
+
+  <div class="output-container">
+    <div class="output-controls">
+      <span>[him:on]</span>
+      [3500ms]
+      <span>[her:on]</span>
+      [2000ms]
+      [mute]
+    </div>
+    <div class="output-header">
+      <span class="cmd">&gt; monkey_mind</span><span class="cursor"></span>
+    </div>
+    <div class="output-stage">
+      <div class="output-voice voice-him">
+        you are my silence (please listen) we were my darkness<br>
+        <br>
+        she was not my heart or I am not your meadow<br>
+        <br>
+        &nbsp;&nbsp;gift but we are our horses<br>
+        <br>
+        I am your dream therefore she was my anger<br>
+        <br>
+        we were not my yellow bird (I hear you) you are my breath<br>
+        <br>
+        he was my distance and&nbsp;&nbsp;freedom<br>
+        <br>
+        &nbsp;&nbsp;cotton (please don't)&nbsp;&nbsp;marrow<br>
+        <br>
+        you are not my quiet but she was your expense
+      </div>
+      <div class="output-divider"></div>
+      <div class="output-voice voice-her">
+        we are our dream and you are not my silence<br>
+        <br>
+        I am not&nbsp;&nbsp;wrong or she was my heart<br>
+        <br>
+        you are completely darkness therefore&nbsp;&nbsp;forsythia<br>
+        <br>
+        &nbsp;&nbsp;right (please listen) we were my meadow<br>
+        <br>
+        she was not my gift but I am your horses<br>
+        <br>
+        you are my road and you are completely freedom<br>
+        <br>
+        we are not our breath (please don't) he was not my age<br>
+        <br>
+        I am not your&nbsp;&nbsp;but she was your quiet<br>
+        <br>
+        &nbsp;&nbsp;anger or we were not your one<br>
+        <br>
+        you are my yellow bird (I hear you)&nbsp;&nbsp;moth<br>
+        <br>
+        we were my distance therefore I am not&nbsp;&nbsp;novelty
+      </div>
+    </div>
+  </div>
+
+  <span class="page-num">8</span>
+</div>
+
+<div class="page page-break">
+
+  <div class="output-container">
+    <div class="output-stage">
+      <div class="output-voice voice-him">
+        we are our silence and you are my dream<br>
+        <br>
+        she was your moth (please listen) I am your map<br>
+        <br>
+        &nbsp;&nbsp;marrow therefore he was not my gift<br>
+        <br>
+        you are not my darkness or we were my freedom<br>
+        <br>
+        I am not your breath but she was my horses<br>
+        <br>
+        he was my strength (I hear you) we are not our cotton<br>
+        <br>
+        &nbsp;&nbsp;anger and you are my quiet<br>
+        <br>
+        she was not my yellow bird (please don't) we were not your age
+      </div>
+      <div class="output-divider"></div>
+      <div class="output-voice voice-her">
+        I am not&nbsp;&nbsp;right therefore you are my silence<br>
+        <br>
+        you are completely wrong (please listen) she was your breath<br>
+        <br>
+        we were not my heart or&nbsp;&nbsp;forsythia<br>
+        <br>
+        he was my dream but I am not your road<br>
+        <br>
+        she was not my freedom and we are our darkness<br>
+        <br>
+        &nbsp;&nbsp;value (I hear you) you are not my gift<br>
+        <br>
+        we were my horses therefore she was my anger<br>
+        <br>
+        I am your meadow or you are completely distance<br>
+        <br>
+        &nbsp;&nbsp;moth but we are not our supply<br>
+        <br>
+        you are my quiet (please don't)&nbsp;&nbsp;novelty
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation" style="margin-top: 16pt;">
+    Note the gaps — where an empty string was selected for subject or predicate, the line stumbles, trails off, or begins mid-thought. "Her" voice produces more lines in the same span (faster interval) but also falls silent more often (more empty predicates). The effect: two distinct rhythms of anxiety, overlapping without synchronizing.
+  </div>
+
+  <span class="page-num">9</span>
+</div>
+
+<div class="page page-break">
+
+  <div class="output-container">
+    <div class="output-stage">
+      <div class="output-voice voice-him">
+        I am your darkness therefore you are my silence<br>
+        <br>
+        we were my meadow and she was not my breath<br>
+        <br>
+        &nbsp;&nbsp;heart (please listen) he was my strength<br>
+        <br>
+        you are not my horses or we are our novelty<br>
+        <br>
+        she was your dream but I am not your anger<br>
+        <br>
+        &nbsp;&nbsp;age (please don't) we were not my freedom<br>
+        <br>
+        he was not my distance and you are my yellow bird<br>
+        <br>
+        we are not our gift (I hear you) she was my expense
+      </div>
+      <div class="output-divider"></div>
+      <div class="output-voice voice-her">
+        she was my wrong or you are my heart<br>
+        <br>
+        &nbsp;&nbsp;right but I am not&nbsp;&nbsp;darkness<br>
+        <br>
+        we are our forsythia therefore he was not my breath<br>
+        <br>
+        you are completely silence (please listen) she was not my dream<br>
+        <br>
+        I am your meadow and we were my horses<br>
+        <br>
+        &nbsp;&nbsp;road (I hear you) you are not my anger<br>
+        <br>
+        we were not your freedom or&nbsp;&nbsp;moth<br>
+        <br>
+        she was your gift but I am not your yellow bird<br>
+        <br>
+        he was my quiet (please don't) we are not our expense<br>
+        <br>
+        you are my distance therefore&nbsp;&nbsp;supply<br>
+        <br>
+        &nbsp;&nbsp;value and I am not&nbsp;&nbsp;age
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top: 16pt; font-size: 10pt; color: #666; text-align: center; font-style: italic;">
+    Each run is unique. The piece never repeats itself.
+  </p>
+
+  <span class="page-num">10</span>
+</div>
+
+</body>
+</html>
