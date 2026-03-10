@@ -3,6 +3,8 @@
 
 An interactive electronic literature piece — two voices in stochastic dialogue, exploring relational anxiety and the weight of what lingers.
 
+**[Experience the piece live](https://curtrode.github.io/monkey_mind/)**
+
 ## Overview
 
 Inspired by [Nick Montfort](http://nickm.com)'s [Memory Slam](https://nickm.com/memslam/) — a collection of stochastic text engines running classics like "Love Letters" (Strachey) and "House of Dust" (Knowles & Tenney) — *Monkey Mind* began as an apprentice's remix and grew into something more ambitious. Where those foundational works exist as poetic monologues, *Monkey Mind* aspires to create a cluttered dialogue that dramatizes the anxieties of intimacy. Two voices generate text simultaneously, each assembling phrases from relational subjects ("you are my," "I am not your," "we were our") and abstract ("silence," "dream," "darkness," "freedom") or pastoral ("horses," "meadow," "yellow bird") predicates. The voices run at different speeds, creating an overlapping texture that evokes two minds thinking past each other.
