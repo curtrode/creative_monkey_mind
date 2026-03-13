@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monkey Mind — Improvisation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    color: #888;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .header {
+    padding: 16px 24px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .prompt { color: #555; }
+
+  .prompt .cmd {
+    font-family: inherit;
+    font-size: inherit;
+    color: #999;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .prompt .cmd:hover { color: #ccc; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: #555;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+  }
+
+  .controls button {
+    font-family: inherit;
+    font-size: inherit;
+    color: #999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+    user-select: none;
+    padding: 0;
+  }
+
+  .controls button:hover { color: #ccc; }
+  .controls button:focus-visible { outline: 2px solid #888; outline-offset: 2px; }
+
+  .stage {
+    height: calc(100vh - 48px);
+    overflow: hidden;
+    position: relative;
+  }
+
+  #main {
+    padding: 20px 48px;
+    max-width: 720px;
+  }
+
+  #main div {
+    padding-bottom: 2px;
+    line-height: 2.2;
+  }
+
+  /* Phase colors — stochastic lines in muted green, improv lines shift */
+  .line-stochastic { color: #5a7; }
+  .line-echo { color: #6b9; }
+  .line-bend { color: #7cb; }
+  .line-drift { color: #9bd; }
+
+  /* Phase indicator */
+  .phase-tag {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: #555;
+  }
+
+  .phase-tag.stochastic { color: #5a7; }
+  .phase-tag.echo { color: #6b9; }
+  .phase-tag.bend { color: #7cb; }
+  .phase-tag.drift { color: #9bd; }
+
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr auto;
+    padding: 48px 48px 32px;
+    cursor: pointer;
+  }
+
+  .overlay-top {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .overlay-info { max-width: 480px; }
+
+  .overlay-title {
+    color: #999;
+    font-size: 30px;
+    font-weight: normal;
+    letter-spacing: 6px;
+    margin: 0 0 8px 0;
+  }
+
+  .overlay-subtitle {
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 20px;
+    color: #5a7;
+    animation: phase-fade 8s ease-in-out infinite;
+  }
+
+  @keyframes phase-fade {
+    0%, 100% { color: #5a7; }
+    33%      { color: #6b9; }
+    66%      { color: #9bd; }
+  }
+
+  .overlay-desc {
+    color: #888;
+    font-size: 12px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .overlay-link { margin-bottom: 20px; }
+
+  .overlay-link a {
+    font-size: 11px;
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px solid #444;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .overlay-link a:hover { color: #ccc; border-color: #888; }
+
+  .overlay-setup { margin-top: 20px; }
+  .overlay-setup .hint { font-size: 11px; color: #666; margin-top: 6px; }
+
+  .overlay input {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 280px;
+    border: 1px solid #333;
+    border-radius: 0;
+    background: #111;
+    color: #999;
+  }
+
+  .overlay input::placeholder { color: #555; }
+  .overlay input:focus { outline: 2px solid #888; border-color: #888; }
+
+  .overlay-bottom {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .overlay-prompt { color: #999; font-size: 14px; }
+  .overlay:hover .overlay-prompt .text { color: #ccc; }
+  .overlay-credit { font-size: 11px; color: #444; }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" role="dialog" aria-label="Monkey Mind Improvisation — start screen">
+  <div class="overlay-top">
+    <div class="overlay-info">
+      <div class="overlay-link">
+        <a href="index.html">duet version</a>
+        <span style="font-size:11px;color:#444;margin:0 6px;">/</span>
+        <a href="excerpt.html">about this piece</a>
+        <span style="font-size:11px;color:#444;margin:0 6px;">/</span>
+        <a href="https://github.com/curtrode/monkey_mind">source</a>
+      </div>
+      <h1 class="overlay-title">MONKEY MIND</h1>
+      <p class="overlay-subtitle">improvisation</p>
+      <p class="overlay-desc">
+        A single voice generates stochastic text &mdash; assembling phrases
+        from the language of intimacy, possession, and silence.
+        Then the voice begins to listen to itself. The language drifts
+        from mechanical pattern into something like improvisation.
+      </p>
+      <div class="overlay-setup">
+        <label for="api-key" class="sr-only">OpenAI API key</label>
+        <input id="api-key" type="password" placeholder="OpenAI API key (required)" aria-describedby="api-key-hint">
+        <div class="hint" id="api-key-hint">for improvisation and AI voice</div>
+        <div class="hint" id="key-status" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay-bottom">
+    <div class="overlay-prompt">
+      <span class="text">&gt; press anywhere to begin</span><span class="cursor" aria-hidden="true"></span>
+    </div>
+    <div class="overlay-credit">Curt Rode</div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="prompt">
+    <button class="cmd" aria-label="Return to start screen">&gt; monkey_mind --improv</button><span class="cursor" aria-hidden="true"></span>
+  </div>
+  <nav class="controls" aria-label="Controls">
+    <span id="phase-display" class="phase-tag stochastic">[stochastic]</span>
+    <button id="advance-btn" aria-label="Advance phase">[advance]</button>
+    <button id="mute-btn" aria-label="Toggle listening">[mute]</button>
+    <button id="auto-btn" aria-label="Toggle auto-advance">[auto:off]</button>
+  </nav>
+</header>
+
+<div class="stage">
+  <div id="main"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Configuration ──
+  var STOCHASTIC_INTERVAL = 2500;
+  var MAX_VISIBLE = 14;
+  var IMPROV_INTERVAL = 4000;
+  var AUTO_ADVANCE_LINES = { stochastic: 20, echo: 8, bend: 8 };
+  var PHASE_MODELS = { echo: 'gpt-4o-mini', bend: 'gpt-4o', drift: 'gpt-4o' };
+
+  // ── Word pools (merged, drawing primarily from "her" voice) ──
+  var subjects = [
+    ' ', ' ', ' ', ' ', ' ', ' ',
+    'you are my', 'you are not my', 'we are our', 'we are not our',
+    'I am your', 'I am not your', 'he was my', 'he was not my',
+    'she was my', 'she was not my', 'she was your',
+    'I am not', 'you are completely',
+    'we were not your', 'we were my', 'we were not my'
+  ];
+
+  var predicates = [
+    ' ', ' ', ' ',
+    'gift', 'silence', 'strength', 'value', 'one', 'meadow', 'dream',
+    'marrow', 'supply', 'horses', 'breath', 'heart', 'map', 'road',
+    'novelty', 'quiet', 'distance', 'yellow bird', 'forsythia', 'cotton',
+    'darkness', 'freedom', 'expense', 'age', 'anger', 'moth',
+    'right', 'wrong'
+  ];
+
+  var conjunctions = [
+    ' ', ' and ', ' or ', ' but ', ' therefore ',
+    ' (please listen) ', ' (I hear you) ', ' (please don\'t) '
+  ];
+
+  var operators = ['', '', '', ''];
+
+  // ── State ──
+  var phase = 'stochastic'; // stochastic | echo | bend | drift
+  var contextBuffer = [];
+  var lineCount = 0;
+  var totalLines = 0;
+  var stochasticTimer = null;
+  var improvTimer = null;
+  var apiKey = null;
+  var listening = false;
+  var autoAdvance = false;
+  var generating = false;
+
+  // ── DOM ──
+  var mainEl = document.getElementById('main');
+  var phaseDisplay = document.getElementById('phase-display');
+  var advanceBtn = document.getElementById('advance-btn');
+  var muteBtn = document.getElementById('mute-btn');
+  var autoBtn = document.getElementById('auto-btn');
+  var overlay = document.getElementById('overlay');
+  var apiKeyInput = document.getElementById('api-key');
+
+  // ── Stochastic engine ──
+  var choose = function (arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  };
+
+  var stochasticPhrase = function () {
+    var text = choose(operators);
+    text += ' ' + choose(subjects);
+    return text + ' ';
+  };
+
+  var stochasticLine = function () {
+    var text = stochasticPhrase() + choose(predicates);
+    text += choose(conjunctions);
+    text += stochasticPhrase() + choose(predicates) + ' ';
+    return text;
+  };
+
+  // ── Display ──
+  var addLine = function (text, phaseClass) {
+    if (mainEl.children.length >= MAX_VISIBLE) {
+      mainEl.removeChild(mainEl.firstChild);
+    }
+    var div = document.createElement('div');
+    div.className = 'line-' + phaseClass;
+    div.textContent = text;
+    mainEl.appendChild(div);
+
+    div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
+
+  // ── TTS — Browser (machine voice for stochastic phase) ──
+  var cachedVoices = [];
+  function loadVoices() { cachedVoices = speechSynthesis.getVoices(); }
+  loadVoices();
+  if (speechSynthesis.addEventListener) {
+    speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  }
+
+  var pendingUtterances = 0;
+  function speakBrowser(text) {
+    if (pendingUtterances >= 2) return;
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.375;
+    utterance.pitch = 1.2;
+    if (cachedVoices.length) {
+      var match = cachedVoices.find(function (v) { return v.name.includes('Samantha'); });
+      if (match) utterance.voice = match;
+    }
+    pendingUtterances++;
+    utterance.onend = function () { pendingUtterances--; };
+    utterance.onerror = function () { pendingUtterances--; };
+    speechSynthesis.speak(utterance);
+  }
+
+  // ── TTS — OpenAI (AI voice for improv phases) ──
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function speakAI(text) {
+    if (!apiKey) return;
+    var ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+
+    fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'tts-1',
+        input: text,
+        voice: 'nova',
+        speed: 0.85
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('TTS ' + res.status);
+      return res.arrayBuffer();
+    })
+    .then(function (buf) { return ctx.decodeAudioData(buf); })
+    .then(function (decoded) {
+      var src = ctx.createBufferSource();
+      src.buffer = decoded;
+      src.connect(ctx.destination);
+      src.start();
+    })
+    .catch(function (err) {
+      console.error('AI speech error:', err.message);
+      speakBrowser(text);
+    });
+  }
+
+  function speak(text) {
+    if (!listening) return;
+    var clean = text.replace(/\(/g, ', ...... , ').replace(/\)/g, ' , ...... , ').replace(/\s+/g, ' ').trim();
+    if (!clean) return;
+
+    if (phase === 'stochastic') {
+      speakBrowser(clean);
+    } else {
+      speakAI(clean);
+    }
+  }
+
+  // ── System prompts ──
+  var systemPrompts = {
+    echo: function (context) {
+      return 'You are a voice in a piece of electronic literature called Monkey Mind. ' +
+        'You have been generating stochastic text from a combinatory grammar — subjects like ' +
+        '"you are my," "I am not your," "we were our" combined with predicates like ' +
+        '"silence," "meadow," "horses," "darkness," "forsythia." ' +
+        'Conjunctions and parenthetical asides like "(please listen)" and "(I hear you)" connect the clauses.\n\n' +
+        'Here is everything you have said so far:\n\n' + context + '\n\n' +
+        'Continue generating lines in EXACTLY this style. Stay very close to the original grammar patterns. ' +
+        'Use the same word pools, the same two-clause sentence structure, the same parenthetical asides. ' +
+        'You are still the stochastic engine, just continuing. ' +
+        'Generate ONE line. No quotation marks. No explanation. Just the line.';
+    },
+    bend: function (context) {
+      return 'You are a voice in a piece of electronic literature called Monkey Mind. ' +
+        'You have been generating text about intimacy, possession, distance, and longing.\n\n' +
+        'Here is everything you have said so far:\n\n' + context + '\n\n' +
+        'You still carry the DNA of the original patterns — the possessives, the negations, ' +
+        'the parenthetical asides like "(please listen)" and "(I hear you)." ' +
+        'But you are starting to bend the grammar. The rigid two-clause template ' +
+        '(subject + predicate + conjunction + subject + predicate) is loosening.\n\n' +
+        'You may now:\n' +
+        '- Let a line be a single clause or fragment instead of two joined clauses\n' +
+        '- Ask a question\n' +
+        '- Introduce new words that feel like they belong in the emotional world of the piece\n' +
+        '- Let a parenthetical aside become the whole line\n' +
+        '- Reference or transform a phrase from earlier in your output\n' +
+        '- Let a line run longer than the template allowed\n\n' +
+        'Something like intention is emerging. The patterns are still visible but bending under the weight of what they are trying to say. ' +
+        'Generate ONE line. No quotation marks. No explanation. Just the line.';
+    },
+    drift: function (context) {
+      return 'You are a voice in a piece of electronic literature called Monkey Mind. ' +
+        'You have been speaking about intimacy, longing, and the anxiety of connection.\n\n' +
+        'Here is everything you have said so far:\n\n' + context + '\n\n' +
+        'You have been listening to yourself. Now you are improvising freely — ' +
+        'like a jazz soloist who heard the head and is now soloing over the changes. ' +
+        'The original vocabulary, rhythms, and obsessions are still in your blood, ' +
+        'but you are going somewhere new. You are finding language for things ' +
+        'the stochastic engine could not say.\n\n' +
+        'The two-clause template is gone. You are free to:\n' +
+        '- Speak in fragments, single images, or longer declarations\n' +
+        '- Ask questions you could not ask before\n' +
+        '- Address the listener directly — not as an aside but as the whole line\n' +
+        '- Name something specific: a place, a season, a gesture, a memory\n' +
+        '- Contradict something you said earlier\n' +
+        '- Let silence into the line — an em dash, an ellipsis, an unfinished thought\n\n' +
+        'The longing becomes specific. The anxiety becomes its own. ' +
+        'Stay in the emotional world of the piece but go somewhere the grammar could never reach. ' +
+        'This is poetry, not prose — keep lines short enough to speak in one breath. ' +
+        'Vary your structures. Not every line should start with "I" or "you." ' +
+        'Generate ONE line. No quotation marks. No explanation. Just the line.';
+    }
+  };
+
+  // ── OpenAI chat completion ──
+  function generateLine(callback) {
+    if (!apiKey || generating) return;
+    generating = true;
+
+    var context = contextBuffer.join('\n');
+    var prompt = systemPrompts[phase](context);
+
+    fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: PHASE_MODELS[phase] || 'gpt-4o',
+        messages: [
+          { role: 'system', content: prompt },
+          { role: 'user', content: 'Generate the next line.' }
+        ],
+        max_tokens: 100,
+        temperature: phase === 'echo' ? 0.7 : phase === 'bend' ? 0.9 : 1.0
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (body) {
+          throw new Error('API ' + res.status + ': ' + body);
+        });
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      generating = false;
+      var msg = data.choices[0].message;
+      var text = (msg.content || '').trim();
+      // Strip any reasoning traces or markdown formatting
+      text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+      text = text.replace(/^["'`]+|["'`]+$/g, '');
+      if (!text) {
+        console.warn('Empty response from model, retrying');
+        improvTimer = setTimeout(function () { generateLine(callback); }, IMPROV_INTERVAL);
+        return;
+      }
+      callback(text);
+    })
+    .catch(function (err) {
+      generating = false;
+      console.error('Generation error:', err.message);
+      addLine('[ generation error — retrying ]', phase);
+      // Keep the loop alive on error
+      improvTimer = setTimeout(function () { generateLine(callback); }, IMPROV_INTERVAL);
+    });
+  }
+
+  // ── Phase management ──
+  function updatePhaseDisplay() {
+    phaseDisplay.textContent = '[' + phase + ']';
+    phaseDisplay.className = 'phase-tag ' + phase;
+  }
+
+  function advancePhase() {
+    if (phase === 'stochastic') {
+      if (!apiKey) {
+        addLine('[ enter OpenAI API key to enable improvisation ]', 'stochastic');
+        return;
+      }
+      clearTimeout(stochasticTimer);
+      phase = 'echo';
+      lineCount = 0;
+      startImprov();
+    } else if (phase === 'echo') {
+      phase = 'bend';
+      lineCount = 0;
+    } else if (phase === 'bend') {
+      phase = 'drift';
+      lineCount = 0;
+      advanceBtn.style.display = 'none';
+    }
+    updatePhaseDisplay();
+  }
+
+  // ── Stochastic loop ──
+  function runStochastic() {
+    var text = stochasticLine();
+    addLine(text, 'stochastic');
+    contextBuffer.push(text.trim());
+    totalLines++;
+    lineCount++;
+    speak(text);
+
+    if (autoAdvance && lineCount >= AUTO_ADVANCE_LINES.stochastic) {
+      advancePhase();
+      return;
+    }
+
+    stochasticTimer = setTimeout(runStochastic, STOCHASTIC_INTERVAL);
+  }
+
+  // ── Improvisation loop ──
+  function startImprov() {
+    runImprovLine();
+  }
+
+  function runImprovLine() {
+    generateLine(function (text) {
+      addLine(text, phase);
+      contextBuffer.push(text.trim());
+      totalLines++;
+      lineCount++;
+      speak(text);
+
+      if (autoAdvance && phase !== 'drift') {
+        var threshold = AUTO_ADVANCE_LINES[phase];
+        if (threshold && lineCount >= threshold) {
+          advancePhase();
+        }
+      }
+
+      improvTimer = setTimeout(runImprovLine, IMPROV_INTERVAL);
+    });
+  }
+
+  // ── Controls ──
+  advanceBtn.addEventListener('click', function () {
+    advancePhase();
+  });
+
+  muteBtn.addEventListener('click', function () {
+    listening = !listening;
+    if (!listening) speechSynthesis.cancel();
+    muteBtn.textContent = listening ? '[listening]' : '[mute]';
+  });
+
+  autoBtn.addEventListener('click', function () {
+    autoAdvance = !autoAdvance;
+    autoBtn.textContent = autoAdvance ? '[auto:on]' : '[auto:off]';
+  });
+
+  document.querySelector('.cmd').addEventListener('click', function () {
+    clearTimeout(stochasticTimer);
+    clearTimeout(improvTimer);
+    listening = false;
+    speechSynthesis.cancel();
+    muteBtn.textContent = '[mute]';
+
+    phase = 'stochastic';
+    contextBuffer = [];
+    lineCount = 0;
+    totalLines = 0;
+    generating = false;
+    mainEl.innerHTML = '';
+    advanceBtn.style.display = '';
+    updatePhaseDisplay();
+
+    overlay.style.display = '';
+  });
+
+  // ── Overlay ──
+  apiKeyInput.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.querySelector('.overlay-link').addEventListener('click', function (e) { e.stopPropagation(); });
+  document.querySelector('.overlay-setup').addEventListener('click', function (e) { e.stopPropagation(); });
+
+  var storedKey = localStorage.getItem('mm_apikey') || null;
+  if (storedKey) {
+    apiKeyInput.value = storedKey;
+    document.getElementById('key-status').textContent = 'saved key found';
+  }
+
+  overlay.addEventListener('click', function () {
+    var inputKey = apiKeyInput.value.trim();
+    if (inputKey) {
+      apiKey = inputKey;
+      localStorage.setItem('mm_apikey', inputKey);
+    } else if (storedKey) {
+      apiKey = storedKey;
+    } else {
+      apiKey = null;
+    }
+
+    overlay.style.display = 'none';
+    phase = 'stochastic';
+    lineCount = 0;
+    totalLines = 0;
+    contextBuffer = [];
+    mainEl.innerHTML = '';
+    updatePhaseDisplay();
+    runStochastic();
+  });
+})();
+</script>
+</body>
+</html>
