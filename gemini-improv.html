@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monkey Mind — Improvisation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    color: #888;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-size: 13px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .header {
+    padding: 16px 24px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .prompt {
+    color: #555;
+  }
+
+  .prompt .cmd {
+    font-family: inherit;
+    font-size: inherit;
+    color: #999;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .prompt .cmd:hover { color: #ccc; }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: #555;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+  }
+
+  .controls button, .controls span {
+    font-family: inherit;
+    font-size: inherit;
+    color: #555;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    user-select: none;
+    transition: color 0.8s;
+  }
+
+  .controls button:hover { color: #ccc; }
+
+  #stage-label {
+    cursor: default;
+    transition: color 1.5s;
+  }
+
+  #main {
+    padding: 20px 24px;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  #main div {
+    padding-bottom: 2px;
+    line-height: 2.2;
+    transition: color 1.5s;
+  }
+
+  /* Stage colors */
+  .line-stochastic { color: #888; }
+  .line-echoing    { color: #998; }
+  .line-bending    { color: #a96; }
+  .line-drift      { color: #b85; }
+
+  .stage-stochastic { color: #555 !important; }
+  .stage-echoing    { color: #998 !important; }
+  .stage-bending    { color: #a96 !important; }
+  .stage-drift      { color: #b85 !important; }
+
+  /* Overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr auto;
+    padding: 48px 48px 32px;
+    cursor: pointer;
+  }
+
+  .overlay-top {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .overlay-info {
+    max-width: 480px;
+  }
+
+  .overlay-title {
+    color: #999;
+    font-size: 30px;
+    font-weight: normal;
+    letter-spacing: 6px;
+    margin: 0 0 8px 0;
+  }
+
+  .overlay-subtitle {
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 20px;
+    color: #888;
+  }
+
+  .overlay-desc {
+    color: #888;
+    font-size: 12px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .top-nav {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    font-size: 11px;
+    z-index: 101;
+  }
+
+  .top-nav a {
+    color: #888;
+    text-decoration: none;
+    border-bottom: 1px solid #444;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .top-nav a:hover { color: #ccc; border-color: #888; }
+
+  .top-nav .sep {
+    color: #444;
+    margin: 0 6px;
+  }
+
+  .overlay-setup {
+    margin-top: 20px;
+  }
+
+  .overlay-setup .hint {
+    font-size: 11px;
+    color: #666;
+    margin-top: 6px;
+  }
+
+  .overlay input {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 280px;
+    border: 1px solid #333;
+    border-radius: 0;
+    background: #111;
+    color: #999;
+  }
+  .overlay input::placeholder { color: #555; }
+  .overlay input:focus { outline: 2px solid #888; border-color: #888; }
+
+  .overlay-bottom {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .overlay-prompt {
+    color: #999;
+    font-size: 14px;
+  }
+
+  .overlay:hover .overlay-prompt .text { color: #ccc; }
+
+  .overlay-credit {
+    font-size: 11px;
+    color: #444;
+  }
+
+  .error-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #a00;
+    color: #fff;
+    padding: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    z-index: 200;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <div class="top-nav">
+    <a href="index.html">duet</a><span class="sep">/</span><a href="openAI-improv.html">openAI improv</a><span class="sep">/</span><a href="excerpt.html">about this piece</a><span class="sep">/</span><a href="https://github.com/curtrode/monkey_mind">source</a><span class="sep">/</span><a href="https://curtrode.com">curtrode.com</a>
+  </div>
+  <div class="overlay-top">
+    <div class="overlay-info">
+      <h1 class="overlay-title">MONKEY MIND</h1>
+      <p class="overlay-subtitle">improvisation prototype</p>
+      <p class="overlay-desc">
+        A single voice generating stochastic text &mdash; assembling phrases
+        from the language of intimacy, possession, negation, and silence.
+        Then, gradually, something changes. The patterns begin to bend.
+        The voice starts to improvise.
+      </p>
+      <div class="overlay-setup">
+        <label for="api-key" class="sr-only">Gemini API key</label>
+        <input id="api-key" type="password" placeholder="Gemini API key (required)">
+        <div class="hint">free at ai.google.dev</div>
+        <div class="hint" id="key-status"></div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay-bottom">
+    <div class="overlay-prompt">
+      <span class="text">&gt; press anywhere to begin</span><span class="cursor"></span>
+    </div>
+    <div class="overlay-credit">Curt Rode</div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="prompt">
+    <button class="cmd">&gt; monkey_mind</button><span class="cursor"></span>
+  </div>
+  <div class="controls">
+    <span id="stage-label" class="stage-stochastic">[stochastic]</span>
+    <button id="restart-btn">[restart]</button>
+  </div>
+</header>
+
+<div id="main"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // --- Configuration ---
+  var STOCHASTIC_LINES = 20;
+  var ECHOING_LINES = 10;
+  var BENDING_LINES = 10;
+  var STOCHASTIC_INTERVAL = 3000;
+  var IMPROV_INTERVAL = 4000;
+  var MAX_VISIBLE = 40;
+
+  // --- Word pools (merged from both voices) ---
+  var subjects = [
+    'you are my', 'you are not my', 'we are our', 'we are not our',
+    'I am your', 'I am not your', 'he was my', 'he was not my',
+    'she was my', 'she was not my', 'she was your',
+    'we were not your', 'we were my', 'we were not my'
+  ];
+
+  var predicates = [
+    'gift', 'silence', 'strength', 'value', 'one', 'meadow', 'dream',
+    'marrow', 'supply', 'horses', 'breath', 'heart', 'road', 'map',
+    'novelty', 'quiet', 'distance', 'yellow bird', 'forsythia',
+    'cotton', 'darkness', 'freedom', 'expense', 'age', 'anger', 'moth'
+  ];
+
+  var conjunctions = [
+    ' and ', ' or ', ' but ', ' therefore ',
+    ' (please listen) ', ' (I hear you) ', " (please don't) "
+  ];
+
+  // --- State ---
+  var apiKey = null;
+  var stage = 'idle'; // idle, stochastic, echoing, bending, drift, done
+  var allLines = [];
+  var lineCount = 0;
+  var timer = null;
+
+  // --- DOM ---
+  var overlay = document.getElementById('overlay');
+  var main = document.getElementById('main');
+  var stageLabel = document.getElementById('stage-label');
+  var apiKeyInput = document.getElementById('api-key');
+  var keyStatus = document.getElementById('key-status');
+
+  // --- Utilities ---
+  function choose(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function addLine(text, stageClass) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    div.className = 'line-' + stageClass;
+    main.appendChild(div);
+    allLines.push(text);
+    lineCount++;
+
+    // Trim old lines if too many visible
+    while (main.children.length > MAX_VISIBLE) {
+      main.removeChild(main.firstChild);
+    }
+
+    // Scroll to bottom
+    main.scrollTop = main.scrollHeight;
+  }
+
+  function setStage(newStage) {
+    stage = newStage;
+    var labels = {
+      stochastic: '[stochastic]',
+      echoing: '[echoing]',
+      bending: '[bending]',
+      drift: '[drift]',
+      done: '[end]'
+    };
+    stageLabel.textContent = labels[newStage] || '';
+    stageLabel.className = 'stage-' + newStage;
+  }
+
+  // --- Stochastic generation ---
+  function generateStochasticLine() {
+    var phrase1 = choose(subjects) + ' ' + choose(predicates);
+    var conj = choose(conjunctions);
+    var phrase2 = choose(subjects) + ' ' + choose(predicates);
+    return phrase1 + conj + phrase2;
+  }
+
+  // --- Gemini API ---
+  function getSystemPrompt(currentStage) {
+    var base = 'You are one voice in a piece of electronic literature called "Monkey Mind." ' +
+      'The piece explores the anxieties of intimacy through stochastic text generation. ' +
+      'Below is the accumulated output so far — lines generated by a combinatory grammar ' +
+      'that assembles phrases from subjects like "you are my," "I am not your," "we were our" ' +
+      'and predicates like "silence," "meadow," "darkness," "yellow bird," "horses," "heart." ' +
+      'Parenthetical asides like "(please listen)" and "(I hear you)" punctuate the text.\n\n';
+
+    if (currentStage === 'echoing') {
+      return base +
+        'STAGE: ECHOING\n' +
+        'Continue generating lines in the EXACT style of the stochastic output below. ' +
+        'Each line MUST follow this grammar: [subject phrase] [predicate] [conjunction] [subject phrase] [predicate]. ' +
+        'Subject phrases are things like: "you are my", "I am not your", "we were our", "she was not my", "he was my". ' +
+        'Predicates are single words or short phrases like: silence, meadow, darkness, yellow bird, horses, heart, gift, distance, quiet, forsythia, moth, freedom, anger, breath, dream, cotton, marrow, road, map. ' +
+        'Conjunctions include: "and", "or", "but", "therefore", "(please listen)", "(I hear you)", "(please don\'t)". ' +
+        'You are still the stochastic engine, just continuing. Do NOT shorten, fragment, or vary the pattern. ' +
+        'Generate exactly ONE complete line. No commentary, no line breaks.';
+    }
+
+    if (currentStage === 'bending') {
+      return base +
+        'STAGE: BENDING\n' +
+        'You still carry the DNA of the original patterns — the possessives, the negations, ' +
+        'the parenthetical asides — but you are starting to bend the grammar. ' +
+        'New words are entering. Fragments become longer. Something like intention is emerging. ' +
+        'You might complete a thought the grammar could only gesture at. ' +
+        'Stay close to the original rhythm but let new language in. ' +
+        'Each line should still be a COMPLETE phrase, not a fragment. ' +
+        'Generate exactly ONE line. No commentary, no line breaks.';
+    }
+
+    // drift
+    return base +
+      'STAGE: FULL DRIFT\n' +
+      'You have been listening to yourself. The stochastic patterns are still in your blood — ' +
+      'the possessives, the longing, the parenthetical interruptions — but now you are improvising freely. ' +
+      'Like a jazz soloist who heard the head and is now soloing over the changes. ' +
+      'The original vocabulary, rhythms, and obsessions are memory, not template. ' +
+      'The longing becomes specific. The anxiety becomes its own. ' +
+      'Do not explain. Do not narrate. Just speak as the voice. ' +
+      'Generate exactly ONE complete line. No commentary, no line breaks.';
+  }
+
+  function callGemini(currentStage, callback) {
+    var systemPrompt = getSystemPrompt(currentStage);
+    var contextText = allLines.join('\n');
+
+    var requestBody = {
+      contents: [{
+        role: 'user',
+        parts: [{ text: 'Here is everything spoken so far:\n\n' + contextText + '\n\nGenerate the next line.' }]
+      }],
+      systemInstruction: {
+        parts: [{ text: systemPrompt }]
+      },
+      generationConfig: {
+        temperature: currentStage === 'echoing' ? 0.7 : currentStage === 'bending' ? 0.9 : 1.0,
+        maxOutputTokens: 1024,
+        topP: 0.95
+      }
+    };
+
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    })
+    .then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (body) {
+          throw new Error('Gemini API ' + res.status + ': ' + body);
+        });
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      var text = '';
+      try {
+        // Gemini 2.5 may return multiple parts (thought + text) — find the non-thought part
+        var parts = data.candidates[0].content.parts;
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].text && !parts[i].thought) {
+            text = parts[i].text.trim();
+            break;
+          }
+        }
+        if (!text) text = parts[parts.length - 1].text.trim();
+      } catch (e) {
+        throw new Error('Unexpected Gemini response format');
+      }
+      // Take only the first non-empty line if model returns multiple
+      var lines = text.split('\n').filter(function (l) { return l.trim().length > 0; });
+      text = lines[0] || text;
+      // Clean up — remove quotes or markdown the model might wrap around output
+      text = text.replace(/^["'*`]+|["'*`]+$/g, '').trim();
+      callback(null, text);
+    })
+    .catch(function (err) {
+      callback(err, null);
+    });
+  }
+
+  // --- Main loop ---
+  function showError(msg) {
+    var existing = document.querySelector('.error-bar');
+    if (existing) existing.remove();
+    var div = document.createElement('div');
+    div.className = 'error-bar';
+    div.textContent = msg;
+    div.addEventListener('click', function () { div.remove(); });
+    document.body.appendChild(div);
+  }
+
+  function tick() {
+    if (stage === 'stochastic') {
+      var line = generateStochasticLine();
+      addLine(line, 'stochastic');
+
+      if (lineCount >= STOCHASTIC_LINES) {
+        setStage('echoing');
+        timer = setTimeout(tick, IMPROV_INTERVAL);
+        return;
+      }
+      timer = setTimeout(tick, STOCHASTIC_INTERVAL);
+
+    } else if (stage === 'echoing' || stage === 'bending' || stage === 'drift') {
+      callGemini(stage, function (err, text) {
+        if (err) {
+          showError('API error: ' + err.message);
+          timer = setTimeout(tick, IMPROV_INTERVAL);
+          return;
+        }
+
+        addLine(text, stage);
+
+        // Check for stage transitions
+        var improvLines = lineCount - STOCHASTIC_LINES;
+        if (stage === 'echoing' && improvLines >= ECHOING_LINES) {
+          setStage('bending');
+        } else if (stage === 'bending' && improvLines >= ECHOING_LINES + BENDING_LINES) {
+          setStage('drift');
+        }
+
+        // Drift runs for ~15 lines then ends
+        if (stage === 'drift' && improvLines >= ECHOING_LINES + BENDING_LINES + 15) {
+          setStage('done');
+          return;
+        }
+
+        timer = setTimeout(tick, IMPROV_INTERVAL);
+      });
+    }
+  }
+
+  function start() {
+    // Reset
+    main.innerHTML = '';
+    allLines = [];
+    lineCount = 0;
+    clearTimeout(timer);
+    setStage('stochastic');
+    tick();
+  }
+
+  // --- Event handlers ---
+  apiKeyInput.addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  document.querySelector('.overlay-setup').addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  document.querySelector('.top-nav').addEventListener('click', function (e) {
+    e.stopPropagation();
+  });
+
+  // Validate key format (Gemini keys start with "AIza" and are ~39 chars)
+  function isValidKey(key) {
+    return key && key.length > 20 && key.length < 100 && /^[A-Za-z0-9_-]+$/.test(key);
+  }
+
+  // Check for saved key
+  var savedKey = localStorage.getItem('mm_gemini_key') || null;
+  if (savedKey && isValidKey(savedKey)) {
+    apiKeyInput.value = savedKey;
+    keyStatus.textContent = 'saved key found';
+  } else if (savedKey) {
+    // Clear invalid stored key
+    localStorage.removeItem('mm_gemini_key');
+    savedKey = null;
+  }
+
+  overlay.addEventListener('click', function () {
+    var inputKey = apiKeyInput.value.trim();
+    if (!inputKey) {
+      keyStatus.textContent = 'API key required';
+      keyStatus.style.color = '#a66';
+      return;
+    }
+    if (!isValidKey(inputKey)) {
+      keyStatus.textContent = 'invalid key format — should be ~39 characters starting with AIza';
+      keyStatus.style.color = '#a66';
+      return;
+    }
+    apiKey = inputKey;
+    localStorage.setItem('mm_gemini_key', inputKey);
+    overlay.style.display = 'none';
+    start();
+  });
+
+  document.querySelector('.cmd').addEventListener('click', function () {
+    clearTimeout(timer);
+    stage = 'idle';
+    overlay.style.display = '';
+  });
+
+  document.getElementById('restart-btn').addEventListener('click', function () {
+    if (apiKey) {
+      start();
+    }
+  });
+})();
+</script>
+</body>
+</html>
